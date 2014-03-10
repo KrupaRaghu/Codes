@@ -13,7 +13,7 @@ def read_param_file(paramfile):
             params.append(map(float, line.split()))
     return paramnames, params
 
-def optimize_parameters(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out_attr = None, visi_attr = None, cap_format="sentences", M=1):
+def optimize_parameters(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out_attr = None, visi_attr = None, cap_format="sentences", M=1, print_optimum = True, print_all = True):
     """paramnames: list of parameters names. paramlist: list of tuples containing parameter values."""
     
     #Read the parameter list
@@ -45,13 +45,18 @@ def optimize_parameters(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out
             
             scores.append(lm.AssessText(caption, M)[1])
 
-            if not out_attr is None:
-                item.set_attribute(out_attr, scores)
+        if not out_attr is None:
+            item.set_attribute(out_attr, scores)
    
         for i,score in enumerate(scores):
             scores_total[i] = scores_total[i] + score
     
-    print paramnames, "Score"
-    for paramset, score in zip(params,scores_total):
-        print paramset, score
+    if print_all:
+        print paramnames, "Score"
+        for paramset, score in zip(params,scores_total):
+            print paramset, score
 
+    if print_optimum:
+        print "Best parameters among these:"
+        best = min(zip(scores_total, params))
+        print best[0], zip(paramnames, best[1])
