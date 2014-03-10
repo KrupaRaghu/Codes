@@ -42,6 +42,6 @@ class Vocabulary(list):
             try:
                 idxes.append(self[word])
             except ValueError as e:
-                idxes.append(unknown)
+                idxes.append(self[unknown])
         return idxes
 
