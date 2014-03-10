@@ -116,6 +116,10 @@ class LSVLM(object):
             score = score + self.Score_words(sent[i:i+M], M)
         return exp(-score), score
 
+    def Perplexity(self, sent, M):
+        prob, score = self.AssessText(sent, M)
+        return pow(prob, -1.0/len(sent))
+
     #Auxiliary function for setting update parameters for ReInit
     def add_DynParam(self, paramname, paramval):
         self.updates.append((paramname, paramval))
