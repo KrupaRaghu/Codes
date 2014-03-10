@@ -113,7 +113,7 @@ def makeCntMGramLM(name, treename, treefile, M, backofflm, disc):
     out.append("Name\t%s" % (name))
     out.append("Type\tCntMGramLM")
     out.append("Tree\t%s" % (treename))
-    out.append("M\t%d" % (M))
+    out.append("M\t%s" % (str(M)))
     out.append("BackOffLM\t%s" % (bo_name))
     out.append("Disc\t%s" % (str(disc)))
    
@@ -132,7 +132,7 @@ def makeZeroLM(name, vocsize):
     
     out.append("Name\t%s" % (name))
     out.append("Type\tZeroLM")
-    out.append("VocSize\t%d" % (vocsize))
+    out.append("VocSize\t%s" % (str(vocsize)))
     
     return "\n".join(out)
 

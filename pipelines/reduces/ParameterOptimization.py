@@ -22,7 +22,7 @@ def optimize_parameters(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out
     scores_total = [0.0]*len(params)
 
     for item in itemiterator:
-    #For each item, get the LM
+        #For each item, get the LM
         if cap_format == "sentences":
             caption = item.get_attribute(cap_attr, Sentences).get_text(one_per_line=False).split()
         elif cap_format == "text":
@@ -32,10 +32,10 @@ def optimize_parameters(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out
             visiterms = item.get_attribute(visi_attr, list)
             caption = caption + visiterms
         lm = item.get_attribute(lm_attr, LSVLM)
+        
         lm.set_vocabulary(vocfile)
         lm.set_lmfile(item.get_attribute_path(lm_attr))
         lm.start()
-        
         scores = []
 
         for paramset in params:
