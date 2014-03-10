@@ -20,8 +20,12 @@ def optimize_parameters(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out
     paramnames, params = read_param_file(paramfile)    
 
     scores_total = [0.0]*len(params)
+    perplexities_total = [0.0]*len(params)
+    
+    num_items = 0
 
     for item in itemiterator:
+        num_items = num_items + 1
         #For each item, get the LM
         if cap_format == "sentences":
             caption = item.get_attribute(cap_attr, Sentences).get_text(one_per_line=False).split()
@@ -37,6 +41,7 @@ def optimize_parameters(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out
         lm.set_lmfile(item.get_attribute_path(lm_attr))
         lm.start()
         scores = []
+        perplexities = []
 
         for paramset in params:
             for paramname, paramval in zip(paramnames, paramset):
@@ -44,19 +49,25 @@ def optimize_parameters(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out
             lm.ReInit()
             
             scores.append(lm.AssessText(caption, M)[1])
+            perplexities.append(lm.Perplexity(caption,M))
 
         if not out_attr is None:
             item.set_attribute(out_attr, scores)
    
         for i,score in enumerate(scores):
             scores_total[i] = scores_total[i] + score
-    
+            perplexities_total[i] = perplexities_total[i] + perplexity[i]
+
     if print_all:
         print paramnames, "Score"
-        for paramset, score in zip(params,scores_total):
+        for paramset, (score, perp) in zip(params,zip(scores_total, perplexities)):
             print paramset, score
 
     if print_optimum:
-        print "Best parameters among these:"
-        best = min(zip(scores_total, params))
-        print best[0], zip(paramnames, best[1])
+        print "Best parameters BY SCORE (disregarding sentence lengths!):"
+        best_score = min(zip(scores_total, params))
+        print best_score[0], zip(paramnames, best_score[1])
+        print "Best parameters BY PERPLEXITY:"
+        best_perp = min(zip(perplexities_total, params))
+        print "Total perplexity:",best_perp[0], "- Average perplexity:",best_perp[0]/num_items, "- Parameters:", zip(paramnames, best_perp[1])
+
