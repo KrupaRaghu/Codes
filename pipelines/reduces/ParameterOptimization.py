@@ -53,10 +53,11 @@ def optimize_parameters(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out
 
         if not out_attr is None:
             item.set_attribute(out_attr, scores)
+            item.set_attribute(out_attr+"_perp", perplexities)
    
         for i,score in enumerate(scores):
             scores_total[i] = scores_total[i] + score
-            perplexities_total[i] = perplexities_total[i] + perplexity[i]
+            perplexities_total[i] = perplexities_total[i] + perplexities[i]
 
     if print_all:
         print paramnames, "Score"

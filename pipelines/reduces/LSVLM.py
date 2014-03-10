@@ -22,7 +22,7 @@ def make_LSVLM_Ngram_corpus(itemiterator, doc_attr=None, cap_attr=None, silent=F
             if print_IDs:
                 outnames.append(item.ID)
             else:
-                outnames.append(item.get_attribute("original_name"))
+                outnames.append(item.get_attribute("original_name"), unicode)
     for item in out:
         if content_format == "text":
             print u" ".join(item).encode("utf-8")
