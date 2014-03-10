@@ -2,6 +2,7 @@
 from json import loads,dumps
 from meta import *
 from BoW import BoW
+from ..experiment_config import UNKNOWN_WORD
 
 class Vocabulary(list):
     def __init__(self, *args, **kwargs):
@@ -35,9 +36,12 @@ class Vocabulary(list):
     def __repr__(self):
         return self.encode()
 
-    def index_words(self, words):
+    def index_words(self, words, unknown = UNKNOWN_WORD):
         idxes = []
         for word in words:
-            idxes.append(self[word])
+            try:
+                idxes.append(self[word])
+            except ValueError as e:
+                idxes.append(unknown)
         return idxes
 
