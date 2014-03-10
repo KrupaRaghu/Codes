@@ -1,0 +1,6 @@
+# Parameters 1
+MainLM IncludeTest
+# LMDefinition 3
+Name	IncludeTest
+Type	IncludeLM
+File	/home/janno/DREENE/BA/pipelines/scripts/TESTLMS/zeroLM.V10.lm

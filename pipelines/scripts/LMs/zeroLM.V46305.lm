@@ -1,0 +1,6 @@
+# Parameters 1
+MainLM ZeroTest
+# LMDefinition 3
+Name	ZeroTest
+Type	ZeroLM
+VocSize	46305

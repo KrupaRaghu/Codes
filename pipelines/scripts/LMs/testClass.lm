@@ -1,0 +1,19 @@
+# Parameters 1
+MainLM ClassTest
+# LMDefinition 5
+Name	ClassTest
+Type	ClassLM
+EmissionLM	ZeroTest10
+ClassPredictLM	DirectTest1.0
+Word2ClassMap	HamletClasses
+# ClassMapDefinition 2
+HamletClasses	ClassMap
+File	/home/janno/DREENE/lsvlm/examples/language_models/class/swb.100.cat
+# LMDefinition 3
+Name	ZeroTest10
+Type	ZeroLM
+VocSize	10
+# LMDefinition 3
+Name	DirectTest1.0
+Type	DirectLM
+ProbabilityFile	/home/janno/DREENE/BA/pipelines/scripts/TESTLMS/probs_1.0.probabilities

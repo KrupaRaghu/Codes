@@ -1,0 +1,6 @@
+# Parameters 1
+MainLM DirectTestNoUnitarity
+# LMDefinition 3
+Name	DirectTestNoUnitarity
+Type	DirectLM
+ProbabilityFile	/home/janno/DREENE/BA/pipelines/scripts/TESTLMS/probs_noUnitarity.probabilities

@@ -1,0 +1,1 @@
+mpiexec -n 8 ~/studium/tools/plda/mpi_lda --alpha 0.1 --beta 0.01 --training_data_file ~/studium/BA_EXPERIMENTS/components/LDA/dMix/K750/dMix_K750.plda_corpus --model_file ~/studium/BA_EXPERIMENTS/components/LDA/dMix/K750/T1000/dMix_K750_T1000.plda_model --total_iterations 2500 --num_topics 1000

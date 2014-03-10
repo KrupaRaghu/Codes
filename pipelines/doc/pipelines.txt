@@ -1,0 +1,176 @@
+Overview over the employed data processing pipelines.
+
+Corpora:
+Training corpus -   the training portion of F+L's BBC news data set, minus the 240 documents in the development corpus
+Development corpus  -   a random selection of 240 training articles
+Test corpus -   the testing portion of F+L's BBC news data set
+Background corpus   -   a collection of documents used to train the trigram component. At the moment, we use the BNC
+
+
+
+Pipeline 0
+Goal:               Build the global vocabulary
+Data used:          BNC, training corpus (documents, captions, image visiterms)
+Notes:              Add sentence start/end tokens and add all visiterms to vocabulary, even those that do not occur
+                    -Needs at least those lemmas that are used in LDA (filtered >= 5 occurrences)
+                    -> build from words and lemmas derived from TreeTagger
+
+
+Pipeline 0a
+Goal:           Build all versions of all texts that will be required, excluding models, as well as the image SIFT data
+BNC:
+    sgml (data) -> nosgml
+    nosgml -> tagged_raw
+    tagged_raw -> tagged
+    tagged -> tokenized
+    tokenized -> sentences
+    tokenized -> phrases
+
+training docs:
+    html -> nohtml
+    nohtml -> doc_tagged_raw
+    doc_tagged_raw -> doc_tagged
+    doc_tagged -> doc_tokenized
+    doc_tokenized -> doc_sentences
+    doc_tokenized -> doc_phrases
+    doc_tagged -> doc_tagged_nva
+    doc_tagged_nva -> doc_nva_words
+    doc_tagged_nva -> doc_nva_lemmas
+
+training caps:
+    txt -> cap_tagged_raw
+    cap_tagged_raw -> cap_tagged
+    cap_tagged -> cap_tokenized
+    cap_tokenized -> cap_sentences
+    cap_tokenized -> cap_phrases
+    cap_tagged -> cap_tagged_nva
+    cap_tagged_nva -> cap_nva_words
+    cap_tagged_nva -> cap_nva_lemmas
+
+training images:
+    pgm -> sift_raw
+    sift_raw -> sift
+
+
+
+Pipeline 1
+Goal:               Train a LDA model on the core content data
+Data used:          Training corpus (documents + captions + images)
+Notes:              n/a
+Degrees of freedom: t in LDA, k in k-means, word filter threshold T
+Parameters to try:  (t in {100, 200, 350, 500, 750, 1000}, k in {250, 500, 750, 1000}), T = 5
+
+Steps:
+For the documents and captions:
+(D_0 documents only)  remove HTML tags from documents
+T_1 apply PoS-tagging (TreeTagger) to all data items
+T_2 filter the PoS tags, keep only nouns, verbs, and adjectives
+T_3 extract lemmas from PoS tags
+T_4 build filter vocabulary (BoW of all data)
+T_5 filter files with filter vocabulary leaving out all terms that occur < T times
+
+For the images:
+I_0 transform .jpg to .pgm (doable via bash + convert)
+I_1 extract SIFT from all images
+I_2_reduce  train k-means model(s) on all SIFT data
+I_3 compute visiterms for all images using the k-means model
+
+For all data items:
+A_1_reduce  build a LDA corpus from all data files, combining words from documents and captions with visiterms from images
+A_2 train LDA model(s) from the constructed corpus(corpora)
+
+
+
+
+Pipeline 2
+Goal:               Train a trigram language model on texts
+Data used:          Training corpus (documents + captions), background corpus
+Notes:              F+L train with SRI toolkit. I think they thus do Kneser-Ney smoothing
+                    Use pipeline to generate corpus file, then save or pipe into indexer, then save or pipe into count tree tool
+Degrees of freedom: From smoothing techniques
+
+Steps:
+D_0 remove HTML/SGML/etc tags from documents to obtain raw text
+T_1 tokenize the texts
+T_2 build sentences from texts
+T_3 add sentence start and sentence end tokens to sentences
+T_4 build count trees for M = 1
+T_5 build count trees for M = 2, with KN smoothing
+T_6 build count trees for M = 3, with KN smoothing
+
+
+
+
+Pipeline 3
+Goal:           Train the conditional probability component
+Data used:      Training corpus (documents + captions)
+Notes:          This should probably be smoothed (see Tonga example)
+Degrees of freedom: Smoothing, probably simple add-epsilon, then epsilon
+Parameters to try:  epsilon = 1e-5
+
+Steps:
+D_0 remove HTML from documents
+T_1 tokenize the texts
+T_2 build sentences from texts
+T_3 add sentence start and sentence end tokens to sentences
+T_4_reduce  count the number of occurrences and do the MLE
+
+
+
+
+Pipeline 4
+Goal:           Train length model(s)
+Data used:      Training corpus (documents + captions), or development corpus (documents + captions)
+Notes:          It seems likely that F+L tried to minimize TER on the development corpus, or adjusted the mean sentence length manually
+Degrees of freedom: mean and variance of the Gaussian, alternatively choice of model, whether or not to train on captions and documents or only captions
+
+Steps:
+D_0 remove HTML from documents
+T_1 tokenize the texts
+T_2 build sentences from texts
+T_3 add sentence start and sentence end tokens to sentences
+T_4_reduce  do the MLE for a Gaussian on the sentences
+
+
+
+
+Pipeline 5
+Goal:           Train the class-based global trigram language model
+Data used:      Training corpus
+Notes:          Can be done manually as soon as count tree files or corpus files are there
+Degrees of freedom: number of classes C
+Parameters to try:  C = 1000
+
+Steps:
+D_0 remove HTML from documents
+T_1 tokenize the texts
+T_2 build sentences from texts
+T_3 add sentence start and sentence end tokens to sentences
+T_4 build M = 2 count tree from all texts
+T_5 apply the clustering script
+
+
+
+
+
+Pipeline 6
+Goal:           Choose training and background documents such that the perplexity of the trigram LM becomes minimal
+Data used:      Test corpus for optimization, training + background corpora for choice of documents
+Notes:          Perplexity can only be measured on the full documents, as in the test set, we have no captions. Alternatively, we could try to find a selection that overall fits best (from the development set)
+Degrees of freedom: perplexity threshold P
+Parameters to try:  P in {-10, -5, -1, 0, 1, 5, 10}
+
+Steps:
+D_0 remove HTML from documents
+T_1 tokenize the texts
+T_2 build sentences from texts
+T_3 add sentence start and sentence end tokens to sentences
+T_4 for each test document + caption, run the perplexity script and store the scores for each document in training and background corpus
+T_5 for each test document, build a M = 1 count tree from the selection resulting from the choice of P
+T_6 for each test document, build a KN-smoothed M = 2 count tree
+T_7 for each test document, build a KN-smoothed M = 3 count tree
+
+
+
+
+

@@ -1,0 +1,36 @@
+Map functions:
+
+nohtml  -> apply_pyfunc -m map_functions -f nohtml
+nosgml  -> apply_pyfunc -m map_functions -f nosgml
+TreeTagger  -> simply call the treetagger executable, currently in /home/andrea/studium/BA/treetagger/cmd/tree-tagger-english
+treetagger output to WTL -> map.TreeTagger.treetagger_output_to_wtl
+filter by PoS tags (NVA) -> apply_pyfunc -m map_functions -f nva
+extract words from wtl -> apply_pyfunc -m map_functions -f words
+extract lemmas from wtl -> apply_pyfunc -m map_functions -f lemmas
+build BoW from text -> apply_pyfunc -m map.BoW -f text_to_bow oder BoW.from_text(text)
+join BoWs -> reduce via pipeline with reduce.BoW.join_bows (expects BoW iterator => wrap items into lambda that knows the intended item attribute)
+build vocabulary -> map.Voc.bow_to_voc
+filter by vocabulary -> map.Voc.filter_by_vocabulary wrapped in lambda that knows the vocabulary
+pgm to rawSIFT -> with siftv4demo on bash : ./sift < image > outfile
+rawSIFT to SIFT -> map.SIFT.raw_SIFT_output_to_SIFT or formats.SIFT.from_SIFT_output
+train k-means model on data -> reduce.train_kmeans_from_sift
+SIFT to visiterms -> map.Visiterms.SIFT_to_visiterms (wrap in lambda that knows the labeler)
+SIFT to visiterm indices -> map.Visiterms.SIFT_to_visiterm_indices (wrap in lambda that known the labeler)
+LDA corpus from attributes -> reduce.LDA.make_pLDA_corpus wrapped in lambda that knows all attributes that should go into making one entry
+tokenize text -> TreeTagger -> extract_words 
+    with opennlp: (should not be done here, as PoS tagging is done with TreeTagger) opennlp TokenizerME en-token.bin < data > tokens
+build sentences from text -> opennlp SentenceDetector en-sent.bin < tokens > sentences
+add sentence start/end tokens -> done via Sentences.get_sentence or Sentences.get_text with the correct start/end tokens and phrase delimiter. get_text can return one sentence per line or joined together smoothly.
+
+
+extract phrases from text
+    with opennlp: opennlp ChunkerME en-chunker.bin < PoS > apache_chunks
+    with Stanford parser (recommended) -> map.Sentences.extract_phrased_sentences_from_Stanford_output
+
+build count tree for some M -> 
+build conditional content selection model -> 
+train Gaussian on sentence lengths -> 
+train classes for classLM ->
+build perp tool corpus file -> 
+compute perplexity for each document -> perp tool from LSVLM together with perp tool corpus
+
