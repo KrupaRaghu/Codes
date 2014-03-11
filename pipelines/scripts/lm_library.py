@@ -1,4 +1,5 @@
 from ..formats.LSVLM import LSVLM
+from ..LM_WEIGHTS import *
 
 from itertools import chain
 
@@ -146,3 +147,8 @@ def makeDirectLM(name, probfile):
     out.append(u"ProbabilityFile\t%s" % (probfile))
     
     return u"\n".join(out)
+
+def makeFengLapataFMALM(lmname, treename, treefile, dDoc_probfile, dMix_probfile, dImg_probfile, suf_tri = "_Tri", suf_uni="_Uni", suf_dDoc="_dDoc", suf_dMix="_dMix", suf_dImg="_dImg", w_dDoc=W_DOC_FMALM, w_dMix=W_MIX_FMALM, w_Img=W_IMG_FMALM, w_Zero=W_ZERO_FMALM, beta=BETA_FMALM):
+	
+	
+	pass
