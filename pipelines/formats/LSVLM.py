@@ -110,16 +110,35 @@ class LSVLM(object):
         p = self.lib.ffi.cast("double", p)
         return float(p)
 
+    def AssessIndexedText(self, sent, M):
+        score = 0.0
+        for i in xrange(len(sent)-M):
+            score = score + self.Score(sent[i:i+M], M)
+        return exp(-score), score
+	#Attention: exp(-score) is very often 0.0!!!
+
     def AssessText(self, sent, M):
         score = 0.0
         for i in xrange(len(sent)-M):
             score = score + self.Score_words(sent[i:i+M], M)
         return exp(-score), score
+	#Attention: exp(-score) is very often 0.0!!!
 
     def Perplexity(self, sent, M):
         prob, score = self.AssessText(sent, M)
-	if prob > 0.0:
-        	return pow(prob, -1.0/len(sent))
+	#print sent,":", prob, score, exp(float(score)/len(sent))
+
+	if score != float("inf"):
+        	return exp(float(score)/len(sent))
+	else:
+		return float("inf")
+
+    def Perplexity_idxes(self, sent, M):
+        prob, score = self.AssessIndexedText(sent, M)
+	#print sent,":", prob, score, exp(float(score)/len(sent))
+
+	if score != float("inf"):
+        	return exp(float(score)/len(sent))
 	else:
 		return float("inf")
 

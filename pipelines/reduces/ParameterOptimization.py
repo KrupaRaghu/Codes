@@ -39,12 +39,12 @@ def calc_perplexity(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out_att
         lm.set_lmfile(item.get_attribute_path(lm_attr))
         lm.start()
         perplexities = []
-
+	caption_idxes = lm.voc.index_words(caption)
         for paramset in params:
             for paramname, paramval in zip(paramnames, paramset):
                 lm.add_DynParam(paramname, paramval)
             lm.ReInit()
             
-            perplexities.append(lm.Perplexity(caption,M))
+            perplexities.append(lm.Perplexity_idxes(caption_idxes,M))
 
       	item.set_attribute(out_attr, perplexities)
