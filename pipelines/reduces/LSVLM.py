@@ -38,14 +38,22 @@ from ..LM_WEIGHTS import *
 
 def make_LDA_dDoc_lms(itemiterator, vocsize, dDoc_prob_attr, out_attr, name_end="_dDocZero", name_end_dDoc="_dDoc", name_end_Zero="_Zero", w_dDoc = W_DOC_DOCZEROLM, w_Zero = W_ZERO_DOCZEROLM):
     for item in itemiterator:
-        ldalm = makeDirectLM(name=item.get_attribute("original_name", unicode)+name_end_dDoc.decode("utf-8"), probfile=item.get_attribute_path(dDoc_prob_attr))
-        zerolm = makeZeroLM(item.get_attribute("original_name", unicode)+name_end_Zero.decode("utf-8"), vocsize)
-        item.set_attribute(out_attr, makeLinearLM(item.get_attribute("original_name")+name_end, [ldalm, zerolm], [w_dDoc, w_Zero]).encode("utf-8"))
+	ldaname=u"".join((item.get_attribute("original_name", unicode)+name_end_dDoc.decode("utf-8")).split())
+	zeroname=u"".join((item.get_attribute("original_name", unicode)+name_end_Zero.decode("utf-8")).split())
+        ldalm = makeDirectLM(name=ldaname, probfile=item.get_attribute_path(dDoc_prob_attr))
+        zerolm = makeZeroLM(zeroname, vocsize)
+	lmname=u"".join((item.get_attribute("original_name", unicode)+name_end.decode("utf-8")).split())
+        item.set_attribute(out_attr, makeLinearLM(lmname, [ldalm, zerolm], [w_dDoc, w_Zero]).encode("utf-8"))
 
 def make_LDA_all_lms(itemiterator, vocsize, dDoc_prob_attr, dMix_prob_attr, dImg_prob_attr, out_attr, name_end="_AllLDAZero", name_end_dDoc="_dDoc", name_end_dMix="_dMix", name_end_dImg="_dImg", name_end_Zero="_Zero", w_dDoc = W_DOC_LDAZEROLM, w_dImg=W_IMG_LDAZEROLM, w_dMix=W_MIX_LDAZEROLM, w_Zero = W_ZERO_LDAZEROLM):
     for item in itemiterator:
-        doclm = makeDirectLM(name=item.get_attribute("original_name", unicode)+name_end_dDoc.decode("utf-8"), probfile=item.get_attribute_path(dDoc_prob_attr))
-        imglm = makeDirectLM(name=item.get_attribute("original_name", unicode)+name_end_dImg.decode("utf-8"), probfile=item.get_attribute_path(dImg_prob_attr))
-        mixlm = makeDirectLM(name=item.get_attribute("original_name", unicode)+name_end_dMix, probfile=item.get_attribute_path(dMix_prob_attr))
-        zerolm = makeZeroLM(item.get_attribute("original_name", unicode)+name_end_Zero.decode("utf-8"), vocsize)
-        item.set_attribute(out_attr, makeLinearLM(item.get_attribute("original_name")+name_end, [doclm, imglm, mixlm, zerolm], [w_dDoc, w_dImg, w_dMix, w_Zero]).encode("utf-8"))
+	docname=u"".join((item.get_attribute("original_name", unicode)+name_end_dDoc.decode("utf-8")).split())
+	mixname=u"".join((item.get_attribute("original_name", unicode)+name_end_dMix.decode("utf-8")).split())
+	imgname=u"".join((item.get_attribute("original_name", unicode)+name_end_dImg.decode("utf-8")).split())
+	zeroname=u"".join((item.get_attribute("original_name", unicode)+name_end_Zero.decode("utf-8")).split())
+	lmname=u"".join((item.get_attribute("original_name", unicode)+name_end.decode("utf-8")).split())
+        doclm = makeDirectLM(name=docname, probfile=item.get_attribute_path(dDoc_prob_attr))
+        imglm = makeDirectLM(name=imgname, probfile=item.get_attribute_path(dImg_prob_attr))
+        mixlm = makeDirectLM(name=mixname, probfile=item.get_attribute_path(dMix_prob_attr))
+        zerolm = makeZeroLM(zeroname, vocsize)
+        item.set_attribute(out_attr, makeLinearLM(lmname, [doclm, imglm, mixlm, zerolm], [w_dDoc, w_dImg, w_dMix, w_Zero]).encode("utf-8"))

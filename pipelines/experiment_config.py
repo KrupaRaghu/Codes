@@ -1,12 +1,12 @@
 #Corpus rootdir and data splits
-CORPUS = "/home/janno/DREENE/BA_EXPERIMENTS/corpus"
+CORPUS = "/nethome/afischer/BA/corpus"
 DEVSPLIT_NAME = "dev"
 TESTSPLIT_NAME = "test"
 TRAINSPLIT_NAME = "training"
 BNCSPLIT_NAME = "BNC"
 #LSVLM C wrapper paths
-LSVLM_LIB_PATH="/home/janno/DREENE/lsvlm/lib/liblm.so"
-LSVLM_WRAPPER_PATH="/home/janno/DREENE/BA/lsvlmc/lsvlm_c_bindings.so.1.0.1"
+LSVLM_LIB_PATH="/nethome/afischer/BA/lsvlm/lib/liblm.so"
+LSVLM_WRAPPER_PATH="/nethome/afischer/BA/BA_code/lsvlmc/lsvlm_c_bindings.so.1.0.1"
 #Multiprocessing
 CPUS = 8
 #Sentence start/end tokens

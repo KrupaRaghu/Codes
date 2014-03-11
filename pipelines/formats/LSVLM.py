@@ -61,7 +61,7 @@ class LSVLM(object):
         else:
             lmname, config_file, vocfile_file, lmfile_file = LSVLM.parse_lmfile(lmfile)
             from sys import stderr
-            stderr.write( "LMfile %s exists, initializing from that file." % (lmfile))
+            stderr.write( "LMfile %s exists, initializing from that file.\n" % (lmfile))
             if lmfile_file is None:
                 self.set_lmfile(lmfile)
             else:
@@ -118,7 +118,10 @@ class LSVLM(object):
 
     def Perplexity(self, sent, M):
         prob, score = self.AssessText(sent, M)
-        return pow(prob, -1.0/len(sent))
+	if prob > 0.0:
+        	return pow(prob, -1.0/len(sent))
+	else:
+		return float("inf")
 
     #Auxiliary function for setting update parameters for ReInit
     def add_DynParam(self, paramname, paramval):
