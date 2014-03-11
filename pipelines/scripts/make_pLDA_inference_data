@@ -1,2 +1,0 @@
-Make pLDA inference data:
-dm-getsplit -r . -s test | dm-reduce -r . -m pipelines.reduces.LDA -f make_inference_corpora_dMix -a out_attr=dMix_750_inference_data,doc_attr=doc_nva_words_vocfiltered,cap_attr=caption_nva_words_vocfiltered,img_attr=kmeans_visiterms_750

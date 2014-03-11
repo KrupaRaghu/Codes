@@ -32,7 +32,6 @@ def make_LSVLM_Ngram_corpus(itemiterator, doc_attr=None, cap_attr=None, silent=F
         for item in outnames:
             print item
 
-
 from ..scripts.lm_library import *
 from ..LM_WEIGHTS import *
 
@@ -57,3 +56,7 @@ def make_LDA_all_lms(itemiterator, vocsize, dDoc_prob_attr, dMix_prob_attr, dImg
         mixlm = makeDirectLM(name=mixname, probfile=item.get_attribute_path(dMix_prob_attr))
         zerolm = makeZeroLM(zeroname, vocsize)
         item.set_attribute(out_attr, makeLinearLM(lmname, [doclm, imglm, mixlm, zerolm], [w_dDoc, w_dImg, w_dMix, w_Zero]).encode("utf-8"))
+
+def make_FMA_all_lms(itemiterator, treefile, vocsize, LDA_lm_attr, out_attr, name_end="_FMA", name_end_LDA="_LDA", name_end_dTri="_Tri", name_end_Uni="_Uni", beta=BETA_FMA):
+	pass
+	#TODO: IMPLEMENT THIS
