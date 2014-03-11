@@ -13,6 +13,23 @@ def read_param_file(paramfile):
             params.append(map(float, line.split()))
     return paramnames, params
 
+def pick_best_parameters(itemiterator, paramfile, perp_attr, num_lms = 240):
+    #Read the parameter list
+    paramnames, params = read_param_file(paramfile)    
+    perp_totals = [0.0]*len(params)
+
+    for item in itemiterator:
+	perps = item.get_attribute(perp_attr, list)
+	for i, p in enumerate(perps):
+	    perp_totals[i] = perp_totals[i] + p
+    
+    best = min(zip(perp_totals, params))
+    print "Total perplexities of all data:"
+    for p,pars in sorted(zip(perp_totals, params)):
+    	print p, float(p)/num_lms, pars
+    print "The best parameter set is:"
+    print best
+
 def calc_perplexity(itemiterator, vocfile, paramfile, lm_attr, cap_attr, out_attr, visi_attr = None, cap_format="sentences", M=1):
     #Read the parameter list
     paramnames, params = read_param_file(paramfile)    
