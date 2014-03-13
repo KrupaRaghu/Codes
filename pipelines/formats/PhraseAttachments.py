@@ -25,6 +25,7 @@ class PhraseAttachmentModel(object):
     def encode(self):
         return dumps(self.counts)
 
+    @staticmethod
     def decode(string):
         return PhraseAttachmentModel(loads(string))
 

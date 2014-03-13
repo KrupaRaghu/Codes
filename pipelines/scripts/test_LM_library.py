@@ -7,6 +7,10 @@ Usage:
     test_LM_library.py --loglinear <name> (<lmfile> <weight>)...
     test_LM_library.py --class <name> <emissionlmfile> <predictionlmfile> <classmapname> <classmapfile>
     test_LM_library.py --absdisc <name> <treename> <treefile> <M> <backofflmfile> <disc>
+    test_LM_library.py --kntri <name> <treename> <treefile> <M> <disc> [<vocsize>]
+    test_LM_library.py --lda <name> <probfile_doc> <probfile_mix> <probfile_img> <vocsize>
+    test_LM_library.py --testFMAnames <name> <suf_lda> <suf_tri> <suf_bi> <suf_uni_kn> <suf_uni> <suf_dDoc> <suf_dMix> <suf_dImg>
+    test_LM_library.py --FMA <name> <treename> <treefile3> <treefile2> <treefile1> <doc_probfile> <mix_probfile> <img_probfile> <suf_lda> <suf_tri> <suf_bi> <suf_uni_kn> <suf_uni> <suf_dDoc> <suf_dMix> <suf_dImg>
 """
 from docopt import docopt
 from LM_LIBRARY import *
