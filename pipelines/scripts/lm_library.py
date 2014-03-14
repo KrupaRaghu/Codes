@@ -246,7 +246,7 @@ def makeLDALM(lmname, dDoc_probfile, dMix_probfile, dImg_probfile, suf="_AllLDAZ
         imglm = makeDirectLM(name=imgname, probfile=item.get_attribute_path(dImg_prob_attr))
         mixlm = makeDirectLM(name=mixname, probfile=item.get_attribute_path(dMix_prob_attr))
         zerolm = makeZeroLM(zeroname)
-        return makeLinearLM(lmname, [doclm, imglm, mixlm, zerolm], [w_dDoc, w_dImg, w_dMix, w_Zero]))
+        return makeLinearLM(lmname, [doclm, imglm, mixlm, zerolm], [w_dDoc, w_dImg, w_dMix, w_Zero])
 
 def get_paramnames_for_FMALM(lmname, suf_lda, suf_tri, suf_bi, suf_uni_kn, suf_uni, suf_dDoc, suf_dMix, suf_dImg):
 	#Beta is lmname::Weight[0] and must also be -lmname::Weight[1]

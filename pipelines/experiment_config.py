@@ -4,6 +4,8 @@ DEVSPLIT_NAME = "dev"
 TESTSPLIT_NAME = "test"
 TRAINSPLIT_NAME = "training"
 BNCSPLIT_NAME = "BNC"
+#LM template directory
+TEMPLATE_DIR="/nethome/afischer/BA/lm_templates/"
 #LSVLM C wrapper paths
 LSVLM_LIB_PATH="/nethome/afischer/BA/lsvlm/lib/liblm.so"
 LSVLM_WRAPPER_PATH="/nethome/afischer/BA/BA_code/lsvlmc/lsvlm_c_bindings.so.1.0.1"

@@ -6,7 +6,7 @@ class PhraseAttachmentModel(object):
         """vocab_size must be the UNIGRAM vocabulary size, i.e. the number of different words in existence."""
         if counts:
             if counts.keys()[0].__class__ == tuple:
-                self.counts = self._convert_tuple_counts(counts)
+                self.counts = PhraseAttachmentModel._convert_tuple_counts(counts)
             else:
                 self.counts = counts
         else:
@@ -58,7 +58,7 @@ class PhraseAttachmentModel(object):
         return float(self.count(left_word, right_word)+self.epsilon)/(self.right_count(right_word)+self.epsilon*self.vocab_size*self.vocab_size)
 
     def count(self, left_word, right_word):
-        return self.counts[self._join_words(left_word, right_word)]
+        return self.counts[PhraseAttachmentModel._join_words(left_word, right_word)]
 
     def left_count(self, word):
         return self.left_counts[word]
@@ -66,7 +66,8 @@ class PhraseAttachmentModel(object):
     def right_count(self, word):
         return self.right_counts[word]
 
-    def _join_words(self, wl, wr):
+    @staticmethod
+    def _join_words(wl, wr):
         return wl+"||"+wr
 
     def _split_words(self, string):
@@ -84,10 +85,11 @@ class PhraseAttachmentModel(object):
         for wstring, cnt in counts.iteritems():
             wl, wr = self._split_words(wstring)
             rightcounts[wl] = rightcounts.get(wl, 0) + cnt
-        return rightcounts
+        return rightcount
 
-    def _convert_tuple_counts(self, tcounts):
+    @staticmethod
+    def _convert_tuple_counts(tcounts):
         out = {}
         for (wl,wr), cnt in tcounts.iteritems():
-            out[self._join_words(wl,wr)] = cnt
+            out[PhraseAttachmentModel._join_words(wl,wr)] = cnt
         return out

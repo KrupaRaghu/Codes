@@ -1,5 +1,6 @@
 from ..formats.Sentences import *
 from ..formats.PhraseAttachments import *
+from json import dumps
 
 def extract_adjacent_phrases(sentences):
     for sentence in sentences:
@@ -22,8 +23,8 @@ def estimate_phrase_attachments(itemiterator, doc_attr = None, cap_attr = None, 
                 for wl in lp:
                     for wr in rp:
                         counts[(wl,wr)] = counts.get((wl,wr),0)+1
-
-    pAmodel = PhraseAttachmentModel(counts)
-    if not silent:
-        print pAmodel.encode()
-    return pAmodel
+    print dumps(PhraseAttachmentModel._convert_tuple_counts(counts))
+    #pAmodel = PhraseAttachmentModel(counts)
+    #if not silent:
+    #    print pAmodel.encode()
+    #return pAmodel
