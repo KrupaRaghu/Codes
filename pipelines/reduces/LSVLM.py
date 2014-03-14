@@ -56,6 +56,3 @@ def make_LDA_all_lms(itemiterator, vocsize, dDoc_prob_attr, dMix_prob_attr, dImg
 
 
 def make_FMA_all_lms(itemiterator, treefile, vocsize, LDA_lm_attr, out_attr, name_end="_FMA", name_end_LDA="_LDA", name_end_dTri="_Tri", name_end_Uni="_Uni", beta=BETA_FMALM, w_doc=W_DOC_FMALM, w_img=W_IMG_FMALM,w_mix=W_MIX_FMALM,w_zero=W_ZERO_FMALM):
-	pass
-	#FMAlm: loglinear LM with LDA interpolation LM, unigram & trigram LM
-	#TODO: IMPLEMENT THIS
