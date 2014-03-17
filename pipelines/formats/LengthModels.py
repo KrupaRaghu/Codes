@@ -1,11 +1,15 @@
 from math import exp, log, pi, sqrt
 
 class LengthModel(object):
-    def prob(length):
+    def prob(self, length):
         raise NotImplementedError()
 
-    def score(length):
-        return -log(self.prob(length))
+    def score(self, length):
+	p = self.prob(length)
+	if p > 0.0:
+            return -log(p)
+	else:
+	    return float("inf")
 
 class GaussianLengthModel(LengthModel):
     def __init__(self, mean, std_dev):

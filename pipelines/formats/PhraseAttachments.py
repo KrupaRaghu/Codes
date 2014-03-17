@@ -76,16 +76,22 @@ class PhraseAttachmentModel(object):
     def _make_left_counts(self, counts):
         leftcounts = {}
         for wstring, cnt in counts.iteritems():
-            wl, wr = self._split_words(wstring)
-            leftcounts[wl] = leftcounts.get(wl, 0) + cnt
+	    try:
+                wl, wr = self._split_words(wstring)
+                leftcounts[wl] = leftcounts.get(wl, 0) + cnt
+	    except Exception as e:
+		print wstring.decode("utf-8"), "throws an error"
         return leftcounts
 
     def _make_right_counts(self, counts):
         rightcounts = {}
         for wstring, cnt in counts.iteritems():
-            wl, wr = self._split_words(wstring)
-            rightcounts[wl] = rightcounts.get(wl, 0) + cnt
-        return rightcount
+	    try:
+            	wl, wr = self._split_words(wstring)
+                rightcounts[wl] = rightcounts.get(wl, 0) + cnt
+	    except Exception as e:
+		print wstring.decode("utf-8"), "throws an error"
+        return rightcounts
 
     @staticmethod
     def _convert_tuple_counts(tcounts):

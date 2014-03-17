@@ -1,4 +1,4 @@
-from ..experiment_config import LSVLM_LIB_PATH, LSVLM_WRAPPER_PATH
+from ..experiment_config import LSVLM_LIB_PATH, LSVLM_WRAPPER_PATH, SENTENCE_START
 from ..formats.Vocabulary import *
 from math import exp
 from data_manager.OSM import object_from_file
@@ -110,19 +110,45 @@ class LSVLM(object):
         p = self.lib.ffi.cast("double", p)
         return float(p)
 
-    def AssessIndexedText(self, sent, M):
-        score = 0.0
-        for i in xrange(len(sent)-M):
-            score = score + self.Score(sent[i:i+M], M)
+    def _get_M_list_for_sentence(self, sent, M):
+	dist_to_sent_start = 1
+	M_list = []
+	start_list = []
+	for i in xrange(len(sent)):
+	    if sent[i] == SENTENCE_START:
+		M_list.append(dist_to_sent_start)
+		dist_to_sent_start = 0
+	    elif dist_to_sent_start < M:
+		M_list.append(dist_to_sent_start)
+	    else:
+		M_list.append(M)
+	    if i - dist_to_sent_start < 0:
+		start_list.append(0)
+	    else:
+		start_list.append(i - dist_to_sent_start)
+	    dist_to_sent_start = dist_to_sent_start + 1
+	return M_list
+
+    def AssessIndexedText(self, sent, M, verbose = False):
+	M_list = self._get_M_list_for_sentence(sent, M)
+	score = 0.0
+	
+	for i in xrange(M-1):
+	    d_sc = self.Score(sent[0:i+1], i+1)
+            score = score + d_sc
+	    if verbose:
+		print sent[0:i+1],":", d_sc
+        for i in xrange(len(sent)-M+1):
+	    d_sc = self.Score(sent[i:i+M], M)
+            score = score + d_sc
+	    if verbose:
+		print sent[i:i+M],":", d_sc
         return exp(-score), score
 	#Attention: exp(-score) is very often 0.0!!!
 
-    def AssessText(self, sent, M):
+    def AssessText(self, sent, M, verbose = False):
         score = 0.0
-        for i in xrange(len(sent)-M):
-            score = score + self.Score_words(sent[i:i+M], M)
-        return exp(-score), score
-	#Attention: exp(-score) is very often 0.0!!!
+	return self.AssessText(self.voc.index_words(hist), M, verbose=verbose)
 
     def Perplexity(self, sent, M):
         prob, score = self.AssessText(sent, M)

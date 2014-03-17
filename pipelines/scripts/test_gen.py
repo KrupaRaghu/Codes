@@ -10,7 +10,7 @@ voc_file = "/nethome/afischer/BA/components/vocabularies/training_K750.voc"
 m = 3
 csel_file = "/nethome/afischer/BA/components/conditional_content_selection/training.content_selector"
 len_file = "/nethome/afischer/BA/components/sentence_lengths/training_captions.gaussian"
-wordfile="/nethome/afischer/BA/misc/50_random_words"
+wordfile="/nethome/afischer/BA/misc/words"
 
 dummy_csel = lambda x: 0.0
 len_model = object_from_file(GaussianLengthModel, len_file)
@@ -20,10 +20,16 @@ lm.set_vocabulary(voc_file)
 lm.set_lmfile(tri_file)
 lm.start()
 
-C = CaptionGenerator(lm, m, len_model.prob, csel_model.prob)
+#print "Testing csel model..."
+#print csel_model.prob("<S_START>")
+#print csel_model.prob("<S_END>")
+
+C = CaptionGenerator(lm, m, len_model.score, csel_model.score, beam_size = 25)
+#C = CaptionGenerator(lm, m, len_model.score, dummy_csel)
 words = ["I", "to", "from"]
 with open(wordfile, "r") as f:
 	words = f.read().split()
 
-C.search(map(lambda x: [x], words))
+C.search_beam(map(lambda x: [x], words))
+#C.search_grid(map(lambda x: [x], words), 11)
 

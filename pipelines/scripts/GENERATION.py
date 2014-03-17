@@ -1,29 +1,31 @@
 from ..experiment_config import *
 from ..formats.Sentences import *
 from bisect import insort_left
+from pprint import pprint
 #Functions for generating captions.
 
-#BEAM_SIZE = 500
-BEAM_SIZE = 10
+BEAM_SIZE = 500
 
 class CaptionGenerator(object):
-    def __init__(self, lang_model, m_lang_model, len_model, csel_model, pa_model = None):
+    def __init__(self, lang_model, m_lang_model, len_model, csel_model, pa_model = None, beam_size = BEAM_SIZE):
         self.lang_model = lang_model
 	self.m_lm = m_lang_model
         self.len_model = len_model
         self.csel_model = csel_model
         self.pa_model = pa_model
 	self.captions = []
-	self.current_candidates = [(float("inf"), [SENTENCE_START])]
+	self.current_candidates = [(float("inf"), [[SENTENCE_START]])]
 	self.next_candidates = []
+	self.beam_size = beam_size
+	print "Setup complete."
     
     def score_sentence(self, sentence, verbose = False):
 	"""Completely scores a sentence."""
         words = []
 	for phrase in sentence:
 	    words.extend(phrase)
-	lm_prob, lm_score = self.lang_model.AssessText(text, self.m_lm)
-        cond_score = sum(map(lambda x: self.csel_model(x), text))
+	lm_prob, lm_score = self.lang_model.AssessText(words, self.m_lm)
+        cond_score = sum(map(lambda x: self.csel_model(x), words))
         len_score = self.len_model(len(words))
         phrase_score = 0.0
         if not self.pa_model is None:
@@ -56,8 +58,12 @@ class CaptionGenerator(object):
     def expand_sentence(self, (score, sentence), expansionlist):
 	"""Expands the given sentence using all expansions from the given list."""
 	for exp in expansionlist:
-	    new_sent = sentence+exp
-	    new_score = score+self.score_sentence_delta(sentence, exp)
+	    new_sent = sentence[:]
+	    new_sent.append(exp)
+	    #if score < float("inf"):
+	    #    new_score = score+self.score_sentence_delta(sentence, exp)
+	    #else:
+	    new_score=self.score_sentence(new_sent)
 	    self.insert((new_score, new_sent), self.next_candidates)
 	return self.insert((score, sentence), self.captions)
 
@@ -69,31 +75,64 @@ class CaptionGenerator(object):
 	return found_one
 
     def step(self, expansionlist):
-	print "current candidates:"
-	print self.current_candidates
+	#print "current candidates:"
+	#print self.current_candidates
 	found_one = self.expand_current(expansionlist)
 	print "next candidates:"
-	print self.next_candidates
+	pprint(zip(map(lambda (s, x): self.score_sentence(x, verbose=True), self.next_candidates), self.next_candidates))
 	self.current_candidates = self.next_candidates
 	self.next_candidates = []
 	return found_one
-
-    def search(self, expansionlist):
+    
+    #NOT TESTED, PROBABLY DOES NOT WORK!
+    #TODO: TEST & FIX
+    def search_grid(self, expansionlist, maxlength):
+	beam_tmp = self.beam_size
+	self.beam_size = float("inf")
 	self.captions = []
-	self.current_candidates = [(float("inf"), [SENTENCE_START])]
+	self.current_candidates = [(float("inf"), [[SENTENCE_START]])]
 	self.next_candidates = []
+	for i in xrange(maxlength):
+	    self.step(expansionlist)	
+	self.beam_size = beam_tmp
+	print self.captions[0], self.score_sentence(self.captions[1], verbose=True)	
+	pprint(self.captions[1:10])
+	
+
+    def search_beam(self, expansionlist, detailed=False):
+	print "Searching for captions using the basic units"
+	pprint(expansionlist)
+	self.captions = []
+	self.current_candidates = [(float("inf"), [[SENTENCE_START]])]
+	self.next_candidates = []
+	steps = 0
 	while self.step(expansionlist):
-	    continue
- 
+	    steps = steps + 1
+	    print "Completed iteration %d." % (steps)
+	print "Done."
+	pprint(self.captions)
+        words = []
+	for phrase in self.captions[0][1]:
+	    words.extend(phrase)
+	print words
+	print "The best caption is:"
+	print self.captions[0]
+	print "csel component:"
+        print map(lambda x: self.csel_model(x), words)
+	print "length model:"
+	print map(lambda x:self.len_model(x), (i+1 for i in xrange(len(words))))
+	print "language model:"
+	print self.lang_model.AssessText(words, self.m_lm, verbose=True)
+
     def insert(self, new_elem, lim_list):
 	#If we have space left in the limited list or the new element is better than the worst old element, add it
-	if len(lim_list) < BEAM_SIZE:
+	if len(lim_list) < self.beam_size:
 	    insort_left(lim_list, new_elem)
 	    return True
 	else:
-	    #Do this if to circumvent the case where lim_list is empty.
+	    #Do this 'if' to circumvent the case where lim_list is empty.
 	    if lim_list[-1] > new_elem:
+		del lim_list[-1]
 	    	insort_left(lim_list, new_elem)
-	    	lim_list = lim_list[:BEAM_SIZE]
 		return True
 	return False
