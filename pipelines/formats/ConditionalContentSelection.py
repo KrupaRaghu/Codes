@@ -65,12 +65,18 @@ class ConditionalContentSelector(object):
 	else:
 	    return sum(scores)
 
+    def score_wordlist_normalize(self, wordlist, detailed = False):
+	return self.score_wordlist(self, map(lambda x:x.lower(), wordlist), detailed=detailed)
+
     def prob_wordlist(self, wordlist, detailed = False):
 	score = self.score_wordlist(wordlist, detailed=detailed)
 	if score < float("inf"):
 	    return exp(-score)
 	else:
 	    return 0.0
+
+    def prob_wordlist_normalize(self, wordlist, detailed = False):
+	return self.prob_wordlist(self, map(lambda x:x.lower(), wordlist), detailed=detailed)
 
     def encode(self):
         return dumps((self.counts,self.totals))

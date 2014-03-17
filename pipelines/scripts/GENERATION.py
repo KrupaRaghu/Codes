@@ -25,7 +25,7 @@ class CaptionGenerator(object):
 	for phrase in sentence:
 	    words.extend(phrase)
 	lm_prob, lm_score = self.lang_model.AssessText(words, self.m_lm)
-        cond_score = sum(map(lambda x: self.csel_model(x), words))
+	cond_score = self.csel_model(words)
         len_score = self.len_model(len(words))
         phrase_score = 0.0
         if not self.pa_model is None:
@@ -49,11 +49,14 @@ class CaptionGenerator(object):
         phrase_score_new = 0.0
 	if old_sentence and not self.pa_model is None:
 	    phrase_score_new = self.pa_model(old_sentence[-1], new_addition)
-        cond_score_new = sum(map(lambda x: self.csel_model(x), new_addition))
+        #Conditional scores cannot be computed incrementally - recompute fully instead.
+	#To get CHANGE in score, also need the old score.
+	cond_score_old = self.csel_model(words_old)
+	cond_score_new = self.csel_model(words_old+new_addition)
         if verbose:
-            return lm_score_new, cond_score_new, d_len_score, phrase_score_new
+            return lm_score_new, cond_score_new - cond_score_old, d_len_score, phrase_score_new
         else:
-            return lm_score_new + cond_score_new + d_len_score + phrase_score_new
+            return lm_score_new + cond_score_new - cond_score_old + d_len_score + phrase_score_new
 
     def expand_sentence(self, (score, sentence), expansionlist):
 	"""Expands the given sentence using all expansions from the given list."""
