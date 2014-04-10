@@ -4,6 +4,9 @@ DEVSPLIT_NAME = "dev"
 TESTSPLIT_NAME = "test"
 TRAINSPLIT_NAME = "training"
 BNCSPLIT_NAME = "BNC"
+#Vocabulary sizes
+VOC_SIZE_NORMAL=47056
+VOC_SIZE_LOWER=41341
 #LM template directory
 TEMPLATE_DIR="/nethome/afischer/BA/lm_templates/"
 #LSVLM C wrapper paths
@@ -72,3 +75,14 @@ BNC_SENT = "BNC_sentences"
 BNC_BOW = "BNC_bow"
 BNC_NVA_LEM = "BNC_nva_lemmas"
 BNC_NVA_WORDS = "BNC_nva_words"
+#K-means visiterm function
+VISITERM_STRING = "<VISITERM_%s_%s>"
+KMEANS_VISITERM_METHOD="K_MEANS2_SCIKIT"
+        
+MINIBATCH_KMEANS_DEFAULT_PARAMS={"n_clusters":K, "init":'k-means++', "max_iter":50000, "batch_size":100, "verbose":0, "compute_labels":True, "random_state":None, "tol":0.0, "max_no_improvement":50, "init_size":None, "n_init":3, "reassignment_ratio":0.05}
+        
+def make_kmeans_visiterm(index):
+    return make_visiterm(KMEANS_VISITERM_METHOD, index)
+        
+def make_visiterm(methodname, index):
+    return VISITERM_STRING % (methodname, str(index+1))

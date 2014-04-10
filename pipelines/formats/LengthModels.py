@@ -15,7 +15,9 @@ class GaussianLengthModel(LengthModel):
     def __init__(self, mean, std_dev):
         self.mean = mean
         self.standard_deviation = std_dev
-
+    def set_params(self, mean, std_dev):
+        self.mean = mean
+        self.standard_deviation = std_dev
     @staticmethod
     def decode(string):
         return GaussianLengthModel(float(string.split()[0]), float(string.split()[1]))

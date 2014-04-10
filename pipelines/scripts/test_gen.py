@@ -20,12 +20,6 @@ lm.set_vocabulary(voc_file)
 lm.set_lmfile(tri_file)
 lm.start()
 
-#print "Testing csel model..."
-#print csel_model.prob("<S_START>")
-#print csel_model.prob("<S_END>")
-
-C = CaptionGenerator(lm, m, len_model.score, csel_model.score, beam_size = 25)
-#C = CaptionGenerator(lm, m, len_model.score, dummy_csel)
 words = ["I", "to", "from"]
 with open(wordfile, "r") as f:
 	words = f.read().split()

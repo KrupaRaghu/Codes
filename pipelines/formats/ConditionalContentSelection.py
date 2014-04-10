@@ -10,6 +10,10 @@ class ConditionalContentSelector(object):
         self.epsilon = epsilon
         self.vocab_size = vocab_size
 
+    def set_params(self, epsilon, vocab_size):
+        self.epsilon = epsilon
+        self.vocab_size = vocab_size
+
     def set_epsilon(self, eps):
         self.epsilon = eps
 
@@ -22,6 +26,19 @@ class ConditionalContentSelector(object):
         cnt = self.counts.get(word, {}).get(num_occ, 0.0)
 #	print self.counts.get(word, {})
         total = self.totals.get(word, 0.0)
+        if not nosmooth:
+            cnt = cnt + self.epsilon
+            total = total + self.epsilon*self.vocab_size
+#	print "Computing probability for word %s with occurrences %s: cnt=%f, total=%f, prob=%s" % (word, num_occ, cnt, total, str(float(cnt)/float(total)))
+        if cnt == 0.0:
+            return 0.0
+        elif total == 0.0:
+            raise ValueError(cnt, total)
+        return float(cnt)/float(total)
+
+    def occurrence_prob(self, word, nosmooth=False):
+        total = self.totals.get(word, 0.0)
+        cnt = total - self.counts.get(word, {}).get(u"0", 0.0)
         if not nosmooth:
             cnt = cnt + self.epsilon
             total = total + self.epsilon*self.vocab_size
@@ -66,7 +83,7 @@ class ConditionalContentSelector(object):
 	    return sum(scores)
 
     def score_wordlist_normalize(self, wordlist, detailed = False):
-	return self.score_wordlist(self, map(lambda x:x.lower(), wordlist), detailed=detailed)
+	return self.score_wordlist(map(lambda x:x.lower(), wordlist), detailed=detailed)
 
     def prob_wordlist(self, wordlist, detailed = False):
 	score = self.score_wordlist(wordlist, detailed=detailed)
@@ -77,6 +94,12 @@ class ConditionalContentSelector(object):
 
     def prob_wordlist_normalize(self, wordlist, detailed = False):
 	return self.prob_wordlist(self, map(lambda x:x.lower(), wordlist), detailed=detailed)
+
+    def get_best_words(self, nosmooth=False):
+	probs = []
+	for word in self.counts.iterkeys():
+		probs.append((self.occurrence_prob(word, nosmooth=nosmooth), word))
+	return sorted(probs)	
 
     def encode(self):
         return dumps((self.counts,self.totals))

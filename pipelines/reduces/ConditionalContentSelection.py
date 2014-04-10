@@ -2,7 +2,8 @@ from ..formats.ConditionalContentSelection import *
 from ..formats.Sentences import *
 from ..formats.BoW import *
 from ..experiment_config import *
-from math import sqrt
+from data_manager.OSM import *
+from math import sqrt, exp
 from pprint import pprint
 
 #Format should be either "text", "BoW", or "sentences"
@@ -52,3 +53,46 @@ def estimate_caption_if_document(itemiterator, doc_attr = None, cap_attr = None,
     if not silent:
         print model.encode()
     return model
+
+def compute_scores_for_caption_words(itemiterator, modelfile, epsilon, vocsize, cap_attr="caption_sentences_stanford", cap_format="sentences", lowercased = False, probs=False):
+	model = object_from_file(ConditionalContentSelector, modelfile)
+	model.set_vocab_size(int(vocsize))
+	model.set_epsilon(float(epsilon))
+	for item in itemiterator:
+		cap = []
+		if cap_format=="sentences":
+			cap = item.get_attribute(cap_attr, Sentences).get_text().split()
+		else:
+			cap = item.get_attribute(cap_attr).split()
+		if lowercased:
+			cap = map(lambda x:x.lower(), cap)
+		for word in cap:
+			if probs:
+				print model.prob(word)
+			else:
+				print model.score(word)
+
+def compute_average_score_for_captions(itemiterator, modelfile, out_attr, epsilon, vocsize, cap_attr="caption_sentences_stanford", cap_format="sentences", lowercased = False, probs=False):
+	
+	model = object_from_file(ConditionalContentSelector, modelfile)
+	model.set_vocab_size(int(vocsize))
+	model.set_epsilon(float(epsilon))
+	totals = []
+	for item in itemiterator:
+		cap = []
+		if cap_format=="sentences":
+			cap = item.get_attribute(cap_attr, Sentences).get_text().split()
+		else:
+			cap = item.get_attribute(cap_attr).split()
+		if lowercased:
+			cap = map(lambda x:x.lower(), cap)
+		item.set_attribute(out_attr, [model.score_phrase(cap)/len(cap), list(model.score_phrase_detailed(cap))])
+		totals.append(model.score_phrase(cap)/len(cap))
+		if probs:
+			print exp(-model.score_phrase(cap)/len(cap))
+		else:
+			print model.score_phrase(cap)/len(cap)
+	if probs:
+		print exp(-sum(totals)/len(totals))
+	else:
+		print sum(totals)/len(totals)

@@ -15,7 +15,10 @@ class Vocabulary(list):
         try:
             return list.__getitem__(self, item)
         except TypeError as e:
-            return self.index(item)
+	    try:
+            	return self.index(item)
+	    except ValueError as v:
+		return self[UNKNOWN_WORD]
 
     @conversion(BoW)
     def from_BoW(bow):
@@ -42,6 +45,13 @@ class Vocabulary(list):
             try:
                 idxes.append(self[word])
             except ValueError as e:
-                idxes.append(self[unknown])
+                idxes.append(self[UNKNOWN_WORD])
         return idxes
 
+    def words2indices(self, words, unknown = UNKNOWN_WORD):
+	return self.index_words(words, unknown)
+    def indices2words(self, indices):
+	words = []
+	for index in indices:
+	    words.append(self[index])
+	return words

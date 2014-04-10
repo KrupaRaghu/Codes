@@ -1,13 +1,26 @@
+class pLDADocumentList(list):
+    def __init__(self, *args, **kwargs):
+        list.__init__(self, *args, **kwargs)
+
+    def encode(self):
+        return "\n".join(map(lambda x:x.encode(), self))
+
+    @staticmethod
+    def decode(string):
+	return pLDADocumentList(map(pLDADocument.decode, string.split("\n")))
+
 class pLDADocument(list):
     def __init__(self, *args, **kwargs):
         list.__init__(self, *args, **kwargs)
         self.total = sum(self)
 
     def get_topic_distribution(self):
-        return map(lambda x: x/self.total, self)
+	if self.total > 0.0:
+	        return map(lambda x: x/self.total, self)
 
     def get_topic_proportion(self, topic):
-        return self[topic]/self.total
+	if self.total > 0.0:
+        	return self[topic]/self.total
 
     def encode(self):
         return " ".join(map(str, self))

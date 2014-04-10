@@ -1,6 +1,5 @@
 from .BoW import compute_joint_BoW
 from ..formats.Vocabulary import Vocabulary
-from ..formats.KMeans import make_kmeans_visiterm
 from ..experiment_config import *
 FILTER_VOC_ATTRIBUTES=[DOC_NVA_WORDS, CAP_NVA_WORDS]
 FULL_VOC_ATTRIBUTES=[DOC_NVA_WORDS, CAP_NVA_WORDS, DOC_TOKEN, CAP_TOKEN]

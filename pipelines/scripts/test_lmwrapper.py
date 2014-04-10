@@ -5,7 +5,9 @@ Usage:
 """
 from docopt import docopt
 from pprint import pprint
-from ..formats.LSVLM import *
+from pipelines.formats.LSVLM import *
+from pipelines.formats.Vocabulary import *
+from data_manager.OSM import *
 
 def main():
     a = docopt(__doc__, version="0.1a")
@@ -28,5 +30,7 @@ def main():
             print "LM config:"
             pprint(lm.config)
         lm.start()
+	print lm.Score(3070, 1)
+
 if __name__ == "__main__":
     main()

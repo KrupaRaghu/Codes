@@ -3,6 +3,8 @@ from ..formats.Vocabulary import *
 from math import exp
 from data_manager.OSM import object_from_file
 from cffi import *
+from collections import OrderedDict
+from sys import stderr
 
 # LSVLM wrapper class. Contains the ffi-opened library wrappers as well as a factory, thus defining a scope.
 class LSVLMWrapper(object):
@@ -19,6 +21,9 @@ class LSVLMWrapper(object):
         self.ffi.cdef('void DynParams_SetParameter(void* params, char* Identifier, float Value);')
         self.ffi.cdef('void DynParams_SetParameterForLM(void* LM, void* params, char* Identifier, float Value);')
         self.ffi.cdef('int DynParams_ExistsParameter(void* params, char* LMName, char* parIdentifier);')
+        self.ffi.cdef('int DynParams_GetNParams(void* params);')
+        self.ffi.cdef('const char* DynParams_GetNthName(void* params, int i);')
+        self.ffi.cdef('float DynParams_GetNthValue(void* params, int i);')
 
         self.ffi.cdef('float DynParams_RealParameter(void* params, char* Identifier);')
         self.ffi.cdef('float DynParams_RealParameterForLM(void* params, void* lm, char* Identifier);')
@@ -53,7 +58,8 @@ LSVLM = LSVLMWrapper(LSVLM_LIB_PATH, LSVLM_WRAPPER_PATH)
 class LSVLM(object):
     def __init__(self, lmfile = None, config = None, vocfile = None):
         self.LM = None
-        self.updates = []
+        self.updates = {}
+	self.params = OrderedDict({})
         if lmfile is None:
             self.lmfile = None
             self.set_config(config)
@@ -84,7 +90,8 @@ class LSVLM(object):
             raise TypeError("LMfile %s does not exist. Instantiation impossible." % (self.lmfile))
         #Start the LM: save pointer from library wrapper. The LM can then finally be used.
         self.LM = self.lib.StartLM(self.lmfile, self.vocfile)
-    
+	self.CollectParams()
+
     #Actual LM wrapper functions. LM must have been started in order to use these.
     def Update(self, hist, M, key):
         hist = self.lib.ffi.new("int[]", hist)
@@ -105,50 +112,47 @@ class LSVLM(object):
         return float(p)
 
     def Score(self, hist, length):
+	#print "Scoring", hist, "with M", length
         hist = self.lib.ffi.new("int[]", hist)
         p = self.lib.wrapper.LM_Score(self.LM, hist, length)
         p = self.lib.ffi.cast("double", p)
         return float(p)
 
     def _get_M_list_for_sentence(self, sent, M):
-	dist_to_sent_start = 1
-	M_list = []
-	start_list = []
-	for i in xrange(len(sent)):
-	    if sent[i] == SENTENCE_START:
-		M_list.append(dist_to_sent_start)
-		dist_to_sent_start = 0
-	    elif dist_to_sent_start < M:
-		M_list.append(dist_to_sent_start)
-	    else:
-		M_list.append(M)
-	    if i - dist_to_sent_start < 0:
-		start_list.append(0)
-	    else:
-		start_list.append(i - dist_to_sent_start)
-	    dist_to_sent_start = dist_to_sent_start + 1
-	return M_list
+        m_cur = 0
+        M_list = []
+        for i in xrange(len(sent)):
+            if m_cur < M:
+                m_cur = m_cur + 1
+            if sent[i] == SENTENCE_START:
+                m_cur = 1
+            M_list.append(m_cur)
+        return M_list
 
-    def AssessIndexedText(self, sent, M, verbose = False):
-	M_list = self._get_M_list_for_sentence(sent, M)
+    def _iter_through_sentence(self, sent, M, start_at = 0):
+	Ms = self._get_M_list_for_sentence(sent, M)
+	if start_at >= len(sent):
+		start_at = len(sent)-1
+	for m, i in zip(Ms[start_at:], xrange(len(sent)-start_at)):
+            yield (sent[i+start_at-m + 1:i+start_at+1], m)
+
+    def AssessIndexedText(self, sent, M, verbose = False, start_at = 0):
 	score = 0.0
-	
-	for i in xrange(M-1):
-	    d_sc = self.Score(sent[0:i+1], i+1)
+	for S, m in self._iter_through_sentence(sent, M, start_at=start_at):
+	    #print "Scoring", S
+	    d_sc = self.Score(list(reversed(S)), m)
+	    #print "Partial sentence", S, "M =", m, "scores", d_sc
             score = score + d_sc
 	    if verbose:
 		print sent[0:i+1],":", d_sc
-        for i in xrange(len(sent)-M+1):
-	    d_sc = self.Score(sent[i:i+M], M)
-            score = score + d_sc
-	    if verbose:
-		print sent[i:i+M],":", d_sc
+	#print "Total score is", score
         return exp(-score), score
 	#Attention: exp(-score) is very often 0.0!!!
 
-    def AssessText(self, sent, M, verbose = False):
+    def AssessText(self, sent, M, verbose = False, start_at = 0):
+	#print "Assessing text", sent, "with M =", M, "starting at", start_at
         score = 0.0
-	return self.AssessText(self.voc.index_words(hist), M, verbose=verbose)
+	return self.AssessIndexedText(self.voc.index_words(sent), M, verbose=verbose, start_at=start_at)
 
     def Perplexity(self, sent, M):
         prob, score = self.AssessText(sent, M)
@@ -170,15 +174,40 @@ class LSVLM(object):
 
     #Auxiliary function for setting update parameters for ReInit
     def add_DynParam(self, paramname, paramval):
-        self.updates.append((paramname, paramval))
+        self.updates[paramname] = paramval
+
+    def add_DynParamForLM(self, paramname, lmname, paramval):
+        self.updates[lmname+"::"+paramname] = paramval
+
+    def set_updates(self, updates):
+	self.updates = dict(updates)
+
+    def set_updates_for_params(self, updatelist):
+	self.updates = dict(zip(self.params.iterkeys(),updatelist))
+    
+    def CollectParams(self):
+	"""Parses the output of the LM function CollectParams to learn of all existing parameters."""
+	if self.lib is None:
+	    stderr.write("Error: start() the LM before collecting parameters.")
+	    return
+	newParams = self.lib.NewDynParams()
+	self.lib.wrapper.LM_CollectParams(self.LM, newParams)
+	n = self.lib.wrapper.DynParams_GetNParams(newParams)
+	self.params = OrderedDict()
+	for i in xrange(n):
+	    paramname = self.lib.ffi.string(self.lib.wrapper.DynParams_GetNthName(newParams, i))
+	    paramval = self.lib.wrapper.DynParams_GetNthValue(newParams, i)
+	    self.params[paramname] = paramval
+	return self.params
 
     def ReInit(self):
         #Build DynParams object
         dynparams = self.lib.wrapper.new_DynParams()
         #Fill with all pending updates
-        for (paramname, paramval) in self.updates:
+        for (paramname, paramval) in self.updates.iteritems():
+	    #stderr.write( paramname + "set to" + str( paramval))
             name_ffi = self.lib.ffi.new("char[]", paramname)
-            self.lib.wrapper.DynParams_SetParameterForLM(self.LM, dynparams, name_ffi, paramval)
+            self.lib.wrapper.DynParams_SetParameter(dynparams, name_ffi, paramval)
         #Send to LM via ReInit
         self.lib.wrapper.LM_ReInit(self.LM, dynparams)
         self.updates = []

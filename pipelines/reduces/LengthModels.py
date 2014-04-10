@@ -13,6 +13,16 @@ def estimate_Gaussian(lengths):
     var = var / (num - 1)
     return mu, var
 
+def get_sentence_lengths_for_latex(itemiterator, doc_attr = None, cap_attr = None):
+	lengths = []
+	for item in itemiterator:
+		if doc_attr:
+			lengths.extend(item.get_attribute(doc_attr, Sentences).get_sentence_lengths())	
+		if cap_attr:
+			lengths.extend(item.get_attribute(cap_attr, Sentences).get_sentence_lengths())	
+	for l in lengths:
+		print l
+
 def plot_sentence_lengths(itemiterator, doc_attr = None, cap_attr = None, name = "Sentence lengths", maxval=None):
     lengths = []
     for item in itemiterator:

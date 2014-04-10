@@ -1,3 +1,4 @@
+from ..formats.Sentences import Sentences
 from ..formats.BoW import BoW
 from BoW import join_BoWs, compute_joint_BoW
 from sys import stdout
@@ -22,6 +23,54 @@ def inf_to_prob(itemiterator, modelfile, out_attr, inf_attr):
             if x > 0.0:
                 out.append(word+u"\t%s" % (str(x)))
         item.set_attribute(out_attr, u"# Probabilities %d\n" % (len(out)) + u"\n".join(out))
+
+def make_selection_corpora(itemiterator, in_attr, out_attr):
+	for item in itemiterator:
+		sents = item.get_attribute(in_attr, Sentences)
+		num_sents = len(sents)
+		sent_bows = []
+		for i in xrange(num_sents - 2):
+			a = BoW(sents.get_sentence(i).split())
+			b = BoW(sents.get_sentence(i+1).split())
+			c = BoW(sents.get_sentence(i+2).split())
+			sent_bows.append(join_BoWs([a,b,c]))
+		item.set_attribute(out_attr, pLDACorpus(sent_bows))
+
+def compute_sentence_image_JSD(itemiterator, sent_inf_attr, img_inf_attr, out_attr):
+	for item in itemiterator:
+		LDAsents = item.get_attribute(sent_inf_attr, pLDADocumentList)
+		LDAimg_topics = item.get_attribute(img_inf_attr, pLDADocument).get_topic_distribution()
+		JSDs = []
+		for i,LDAsent in enumerate(LDAsents):
+			sent_dist = LDAsent.get_topic_distribution()
+			if sent_dist is None:
+				JSDs.append(float("inf"))
+			else:
+				JSDs.append(JSD_list(sent_dist, LDAimg_topics))
+		item.set_attribute(out_attr, JSDs)
+	
+from math import log
+def KLD(p, q):
+	div = 0.0
+	for k,v in p.iteritems():
+		if v > 0.0:
+			div = div+v*log(v/q[k])
+	return div
+
+def KLD_list(p,q):
+	return sum(map(lambda (P,Q):P*log(P/Q), filter(lambda (a,b): a > 0.0, zip(p,q))))
+
+def JSD_list(p,q):
+	mix = map(lambda (a,b): 0.5*(a+b), zip(p,q))
+	return 0.5*(KLD_list(p,mix)+KLD_list(q,mix))
+
+def JSD(p,q):
+	from collections import Counter
+	mix1 = dict(map(lambda (k,v) :(k,0.5*v), p.iteritems()))
+	mix2 = dict(map(lambda (k,v) :(k,0.5*v), q.iteritems()))
+	mix = Counter(mix1)
+	mix.update(Counter(mix2))	
+	return 0.5*(KLD(p, mix)+KLD(q, mix))
 
 def make_inference_corpora_dDoc(itemiterator, out_attr, doc_attr = None, cap_attr = None):
     for item in itemiterator:

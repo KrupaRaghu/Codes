@@ -24,6 +24,10 @@ class PhraseAttachmentModel(object):
 
     def encode(self):
         return dumps(self.counts)
+    
+    def set_params(self, epsilon, vocab_size):
+        self.epsilon = epsilon
+        self.vocab_size = vocab_size
 
     @staticmethod
     def decode(string):
@@ -39,6 +43,16 @@ class PhraseAttachmentModel(object):
 
     def prob(self, left_phrase, right_phrase):
         return exp(-self.score(left_phrase, right_phrase))
+
+    def score_sentence(self, phrases):
+	score = 0.0
+	for i in xrange(len(phrases)-1):
+		if phrases[i] and phrases[i+1]:
+			score = score + self.score(phrases[i], phrases[i+1])
+	return score
+
+    def prob_sentence(self, phrases):
+	return exp(-self.score_sentence(phrases))	
 
     def prob_detailed(self, left_phrase, right_phrase):
         for wl in left_phrase:
@@ -58,13 +72,13 @@ class PhraseAttachmentModel(object):
         return float(self.count(left_word, right_word)+self.epsilon)/(self.right_count(right_word)+self.epsilon*self.vocab_size*self.vocab_size)
 
     def count(self, left_word, right_word):
-        return self.counts[PhraseAttachmentModel._join_words(left_word, right_word)]
+        return self.counts.get(PhraseAttachmentModel._join_words(left_word, right_word), 0)
 
     def left_count(self, word):
-        return self.left_counts[word]
+        return self.left_counts.get(word, 0)
 
     def right_count(self, word):
-        return self.right_counts[word]
+        return self.right_counts.get(word, 0)
 
     @staticmethod
     def _join_words(wl, wr):

@@ -1,0 +1,3 @@
+_FL_FMA_standard::Weight[0] _FL_FMA_standard::Weight[1] _FL_FMA_standard::Weight[2] _AllLDAZero::Weight[0] _AllLDAZero::Weight[1] _AllLDAZero::Weight[2] _AllLDAZero::Weight[3]
+0.5 -0.5 1.0 0.0 0.0 1.0 0.0
+0.5 -0.5 1.0 0.0 0.05 0.95 0.0

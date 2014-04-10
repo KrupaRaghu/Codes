@@ -1,0 +1,46 @@
+# Parameters 1
+MainLM Sarkozy_Mali_trip_sparks_protests_2367_FL_FMA_standard
+# LMDefinition 9
+Name	Sarkozy_Mali_trip_sparks_protests_2367_FL_FMA_standard
+Type	LogLinear
+LM[0]	Sarkozy_Mali_trip_sparks_protests_2367_AllLDAZero
+Weight[0]	0.5
+LM[1]	Sarkozy_Mali_trip_sparks_protests_2367_Uni
+Weight[1]	-0.5
+LM[2]	Sarkozy_Mali_trip_sparks_protests_2367_Tri
+Weight[2]	1.0
+NoNorm	TRUE
+# LMDefinition 10
+Name	Sarkozy_Mali_trip_sparks_protests_2367_AllLDAZero
+Type	Linear
+LM[0]	Sarkozy_Mali_trip_sparks_protests_2367_dDoc
+Weight[0]	0.11
+LM[1]	Sarkozy_Mali_trip_sparks_protests_2367_dImg
+Weight[1]	0.03
+LM[2]	Sarkozy_Mali_trip_sparks_protests_2367_dMix
+Weight[2]	0.83
+LM[3]	Sarkozy_Mali_trip_sparks_protests_2367_Zero
+Weight[3]	0.03
+# LMDefinition 3
+Name	Sarkozy_Mali_trip_sparks_protests_2367_dDoc
+Type	DirectLM
+ProbabilityFile	/nethome/afischer/BA/corpus/data/00/00026/dDoc_T1000.probabilities
+# LMDefinition 3
+Name	Sarkozy_Mali_trip_sparks_protests_2367_dImg
+Type	DirectLM
+ProbabilityFile	/nethome/afischer/BA/corpus/data/00/00026/dImg_K750_T1000.probabilities
+# LMDefinition 3
+Name	Sarkozy_Mali_trip_sparks_protests_2367_dMix
+Type	DirectLM
+ProbabilityFile	/nethome/afischer/BA/corpus/data/00/00026/dMix_K750_T1000.probabilities
+# LMDefinition 2
+Name	Sarkozy_Mali_trip_sparks_protests_2367_Zero
+Type	ZeroLM
+# LMDefinition 3
+Name	Sarkozy_Mali_trip_sparks_protests_2367_Uni
+Type	IncludeLM
+File	/nethome/afischer/BA/components/Ngrams/unigram_SRI.lm
+# LMDefinition 3
+Name	Sarkozy_Mali_trip_sparks_protests_2367_Tri
+Type	IncludeLM
+File	/nethome/afischer/BA/components/Ngrams/trigram_SRI.lm

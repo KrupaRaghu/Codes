@@ -1,10 +1,68 @@
 from ..experiment_config import *
 from ..formats.Sentences import *
 from bisect import insort_left
-from pprint import pprint
+
 #Functions for generating captions.
 
 BEAM_SIZE = 500
+
+class BeamSearcher(object):
+	def __init__(self, start_states, expander, scorer, beam_size = BEAM_SIZE):
+		"""
+			start_states: list of start states
+			expander(state) = list of new states
+			scorer(state): scoring function used to rank candidates. LOWER score is better!
+		"""
+		self.start_states = start_states[:]
+		self.expander = expander
+		self.scorer = scorer
+		self.beam_size = beam_size
+
+	def search(self, verbose=False):
+		self.expanded = []
+		self.next_candidates = []
+		self.current_candidates = self.start_states[:]
+		steps = 0
+		while self.step():
+	    		steps = steps + 1
+	    		if verbose:
+				print "Completed iteration %d." % (steps)
+				print self.expanded
+		if verbose:
+			print "Search completed. The best result is:", self.expanded[0]	
+		return self.expanded[0]
+
+	def step(self):
+		found_one = self.expand_current()
+		self.current_candidates = self.next_candidates
+		self.next_candidates = []
+		return found_one
+	
+	def expand_current(self):
+		found_one = False
+		for (score, state) in self.current_candidates:
+			if self.expand_state(state):
+				found_one = True
+		return found_one
+
+	def expand_state(self, state):
+		for new_state in self.expander(state):
+	    		self.insert((self.scorer(new_state), new_state), self.next_candidates)
+		return self.insert((self.scorer(state), state), self.expanded)
+    
+	def insert(self, new_elem, lim_list):
+		if len(lim_list) < self.beam_size:
+			#If we have space left in the limited list, add the new element.
+	    		insort_left(lim_list, new_elem)
+	    		return True
+		else:
+			#Otherwise, the new element must be better than the worst old element.
+	    		if lim_list[-1] > new_elem:
+				del lim_list[-1]
+				insort_left(lim_list, new_elem)
+				return True
+		return False
+    
 
 class CaptionGenerator(object):
     def __init__(self, lang_model, m_lang_model, len_model, csel_model, pa_model = None, beam_size = BEAM_SIZE):
@@ -18,7 +76,21 @@ class CaptionGenerator(object):
 	self.next_candidates = []
 	self.beam_size = beam_size
 	print "Setup complete."
-    
+
+    def set_params(self, m_len, csel_eps, phrase_eps, beta_FMA, w_dDoc, w_dImg, w_dMix, w_Zero):
+	#Set mean sentence length to m_len
+	self.len_model.mean = m_len
+	#Set conditional content selection epsilon to csel_eps
+	self.csel_model.set_epsilon(csel_eps)
+	#Set phrase attachment model epsilon to phrase_eps, if it exists
+	#Also set vocabulary size to the LM's vocabulary size
+	if not self.pa_model is None and phrase_eps > 0.0:
+	    self.pa_model.epsilon = phrase_eps
+	    self.pa_model.vocab_size = len(self.lang_model.voc)
+	#Set the LM parameters
+	params = [beta_FMA, w_dDoc, w_dImg, w_dMix, w_Zero]
+   	self.lang_model.set_updates_for_params(params)
+ 
     def score_sentence(self, sentence, verbose = False):
 	"""Completely scores a sentence."""
         words = []

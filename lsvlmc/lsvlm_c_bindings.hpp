@@ -28,6 +28,18 @@ extern "C" {
         return params->RealParameter(lm->GetName(), Identifier);
     }
 
+    int DynParams_GetNParams(DynParams* params){
+	return params->NParams;
+    }
+
+    const char* DynParams_GetNthName(DynParams* params, int i){
+	return params->Identifiers[i].c_str();
+    }
+
+    float DynParams_GetNthValue(DynParams* params, int i){
+	return params->PValues[params->Identifiers[i]];
+    }
+
     LMFactory* new_LMFactory(){
         return new LMFactory();
     }
