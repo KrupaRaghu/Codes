@@ -13,6 +13,16 @@ def estimate_Gaussian(lengths):
     var = var / (num - 1)
     return mu, var
 
+def get_text_lengths_for_latex(itemiterator, doc_attr):
+	lengths = []
+	for item in itemiterator:
+		lengths.append(len(item.get_attribute(doc_attr, Sentences).get_text().split()))	
+	
+	avg = sum(lengths)/len(lengths)
+	print "AVERAGE:", avg
+	for l in lengths:
+		print l
+
 def get_sentence_lengths_for_latex(itemiterator, doc_attr = None, cap_attr = None):
 	lengths = []
 	for item in itemiterator:

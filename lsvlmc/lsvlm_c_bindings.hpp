@@ -1,6 +1,6 @@
-#include "/nethome/afischer/BA/lsvlm/src/util/util.h"
-#include "/nethome/afischer/BA/lsvlm/src/util/def.h"
-#include "/nethome/afischer/BA/lsvlm/src/language_models/lmfactory.h"
+#include "/nethome/afischer/projects/character_ngram_LMs/lsvlm/src/util/util.h"
+#include "/nethome/afischer/projects/character_ngram_LMs/lsvlm/src/util/def.h"
+#include "/nethome/afischer/projects/character_ngram_LMs/lsvlm/src/language_models/lmfactory.h"
 #include<string>
 
 extern "C" {

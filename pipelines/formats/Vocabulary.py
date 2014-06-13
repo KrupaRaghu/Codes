@@ -18,7 +18,8 @@ class Vocabulary(list):
 	    try:
             	return self.index(item)
 	    except ValueError as v:
-		return self[UNKNOWN_WORD]
+		return self.index(self.unknown)
+		# return list.__getitem__(self,self.index(self.unknown))
 
     @conversion(BoW)
     def from_BoW(bow):
@@ -39,12 +40,18 @@ class Vocabulary(list):
     def __repr__(self):
         return self.encode()
 
-    def index_words(self, words, unknown = UNKNOWN_WORD):
+    def index_words(self, words, unknown = None):
         idxes = []
+	if not unknown is None:
+       	    self.unknown = unknown
         for word in words:
+	   # print "indexing",word
             try:
                 idxes.append(self[word])
+	#	print "found index", self[word]
             except ValueError as e:
+	#	print "using unknown word",UNKNOWN_WORD
+	#	print "found index", self[UNKNOWN_WORD]
                 idxes.append(self[UNKNOWN_WORD])
         return idxes
 

@@ -24,7 +24,13 @@ class PhraseAttachmentModel(object):
 
     def encode(self):
         return dumps(self.counts)
-    
+
+    def set_epsilon(self, epsilon):
+	self.epsilon = float(epsilon)
+
+    def set_vocab_size(self, voc):
+	self.vocab_size = int(voc)
+ 
     def set_params(self, epsilon, vocab_size):
         self.epsilon = epsilon
         self.vocab_size = vocab_size

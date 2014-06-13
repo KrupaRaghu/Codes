@@ -1,5 +1,5 @@
 
-paramnames = ["Weight[0]", "Weight[1]"]
+paramnames = ["_dDocZero::Weight[0]", "_dDocZero::Weight[1]"]
 print " ".join(paramnames)
 
 #Resolution: 1%

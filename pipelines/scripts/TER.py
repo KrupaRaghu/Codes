@@ -53,6 +53,7 @@ def Levenshtein_words(sent_hyp, sent_ref, COST_DEL = 1, COST_INS = 1, COST_SUB =
 
 def generate_shifts(sent):
     #print sent
+    yield sent
     #Generate all possible shifts for the given sentence.
     for l in range(1, len(sent)):
         #Try the size of the contiguous sequence to be shifted.

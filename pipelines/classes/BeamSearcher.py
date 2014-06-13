@@ -2,6 +2,7 @@ from ..experiment_config import *
 from ..formats.Sentences import *
 from bisect import insort_left
 from pprint import pprint
+from time import time
 
 #Functions for generating captions.
 
@@ -21,7 +22,8 @@ class BeamSearcher(object):
 	def score(self, node):
 		raise NotImplementedError
 
-	def search(self, verbose=False):
+	def search(self, verbose=False, return_time = False):
+		start_time = time()
 		self.expanded = []
 		self.next_candidates = []
 		self.current_candidates = self.start_states[:]
@@ -36,10 +38,15 @@ class BeamSearcher(object):
 				pprint(self.expanded)
 				print "Candidates for next round:"
 				pprint(self.current_candidates)
+		end_time = time()
+		duration = end_time - start_time
 		if verbose:
 			print "Search completed. The best result is:", self.expanded[0]	
 		#return self.expanded[0]
-		return self.expanded
+		if return_time:
+			return self.expanded, duration
+		else:
+			return self.expanded
 
 	def step(self):
 		found_one = self.expand_current()

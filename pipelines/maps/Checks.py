@@ -30,3 +30,12 @@ def check_for_unknown_words(item, vocfile, in_attr, attr_format="sentences"):
 		u_idx = check_for_unknown_words.voc[UNKNOWN_WORD]
 		
 		return u_idx in idxed
+
+def check_best_caption_equal_original(item, cap_attr, gen_attr):
+	cap = item.get_attribute(cap_attr, Sentences).get_text(one_per_line=False).split()
+	best_generated = item.get_attribute(gen_attr, list)[0]
+	print cap
+	print best_generated[0][1][0]
+	print " ".join(map(lambda x: " ".join(x), best_generated[0][1][0])).split()
+	return False
+	

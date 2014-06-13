@@ -107,7 +107,7 @@ class LSVLM(object):
 
     def Prob(self, hist, M):
         hist = self.lib.ffi.new("int[]", hist)
-        p = self.lib.wrapper.LM_Prob(self.LM, hist, length)
+        p = self.lib.wrapper.LM_Prob(self.LM, hist, M)
         p = self.lib.ffi.cast("double", p)
         return float(p)
 
@@ -146,16 +146,35 @@ class LSVLM(object):
 	    if verbose:
 		print sent[0:i+1],":", d_sc
 	#print "Total score is", score
-        return exp(-score), score
+	#print score
+	if score != float("inf"):
+        	return exp(-score), score
+	else:
+		return 0.0, score
 	#Attention: exp(-score) is very often 0.0!!!
+
+
+    def ScoreIndexedText(self, sent, M, verbose = False, start_at = 0):
+	score = 0.0
+	for S, m in self._iter_through_sentence(sent, M, start_at=start_at):
+	    #print "Scoring", S
+	    d_sc = self.Score(list(reversed(S)), m)
+	    #print "Partial sentence", S, "M =", m, "scores", d_sc
+            score = score + d_sc
+	    if verbose:
+		print sent[0:i+1],":", d_sc
+	#print "Total score is", score
+	return score
+
+    def ScoreText(self, sent, M, verbose=False, start_at = 0):
+	return self.ScoreIndexedText(self.voc.index_words(sent), M, verbose=verbose, start_at=start_at)
 
     def AssessText(self, sent, M, verbose = False, start_at = 0):
 	#print "Assessing text", sent, "with M =", M, "starting at", start_at
-        score = 0.0
 	return self.AssessIndexedText(self.voc.index_words(sent), M, verbose=verbose, start_at=start_at)
 
     def Perplexity(self, sent, M):
-        prob, score = self.AssessText(sent, M)
+        score = self.ScoreText(sent, M)
 	#print sent,":", prob, score, exp(float(score)/len(sent))
 
 	if score != float("inf"):
@@ -164,7 +183,7 @@ class LSVLM(object):
 		return float("inf")
 
     def Perplexity_idxes(self, sent, M):
-        prob, score = self.AssessIndexedText(sent, M)
+        score = self.ScoreIndexedText(sent, M)
 	#print sent,":", prob, score, exp(float(score)/len(sent))
 
 	if score != float("inf"):
@@ -210,7 +229,7 @@ class LSVLM(object):
             self.lib.wrapper.DynParams_SetParameter(dynparams, name_ffi, paramval)
         #Send to LM via ReInit
         self.lib.wrapper.LM_ReInit(self.LM, dynparams)
-        self.updates = []
+        self.updates = {}
 
     def set_vocabulary(self, vocfile):
         self.vocfile = vocfile

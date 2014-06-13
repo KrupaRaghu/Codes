@@ -4,11 +4,12 @@ from json import dumps, loads
 from collections import Counter
 
 class ConditionalContentSelector(object):
-    def __init__(self, counts, totals, epsilon = 0.0, vocab_size = 0):
+    def __init__(self, counts, totals, epsilon = 0.0, vocab_size = 0, lowercased = False):
         self.counts = counts
         self.totals = totals
         self.epsilon = epsilon
         self.vocab_size = vocab_size
+	self.lowercased = lowercased
 
     def set_params(self, epsilon, vocab_size):
         self.epsilon = epsilon
@@ -17,7 +18,14 @@ class ConditionalContentSelector(object):
     def set_epsilon(self, eps):
         self.epsilon = eps
 
+    def use_vocabulary(self, voc):
+	if self.lowercased:
+		self.vocab_size = len(set(map(lambda x: x.lower(), voc)))
+	else:
+		self.vocab_size = len(voc)
+
     def set_vocab_size(self, vocsize):
+	"""Deprecated - use discouraged. Instead use the function use_vocabulary(vocabulary)."""
         self.vocab_size = vocsize
 
     def prob(self, word, num_occ = 1, nosmooth = False):

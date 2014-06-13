@@ -10,8 +10,8 @@ VOC_SIZE_LOWER=41341
 #LM template directory
 TEMPLATE_DIR="/nethome/afischer/BA/lm_templates/"
 #LSVLM C wrapper paths
-LSVLM_LIB_PATH="/nethome/afischer/BA/lsvlm/lib/liblm.so"
-LSVLM_WRAPPER_PATH="/nethome/afischer/BA/BA_code/lsvlmc/lsvlm_c_bindings.so.1.0.1"
+LSVLM_LIB_PATH="/nethome/afischer/projects/character_ngram_LMs/lsvlm/lib/liblm.so"
+LSVLM_WRAPPER_PATH="/nethome/afischer/BA/BA_code/lsvlmc/lsvlm_c_bindings_ngrams.so.1.0.1"
 #Multiprocessing
 CPUS = 8
 #Sentence start/end tokens
