@@ -1,6 +1,0 @@
-# Parameters 1
-MainLM DirectTest0.0
-# LMDefinition 3
-Name	DirectTest0.0
-Type	DirectLM
-ProbabilityFile	/home/janno/DREENE/BA/pipelines/scripts/TESTLMS/probs_0.0.probabilities

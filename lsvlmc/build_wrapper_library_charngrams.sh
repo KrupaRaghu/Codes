@@ -1,2 +1,0 @@
-g++ -L/nethome/afischer/projects/character_ngram_LMs/lsvlm/lib -llm -fPIC -Wall -I/nethome/afischer/character_ngram_LMs/lsvlm/src/language_models/ -I/nethome/afischer/character_ngram_LMs/lsvlm/src/ -I/nethome/afischer/character_ngram_LMs/lsvlm/src/util/ -g -c lsvlm_c_bindings.cpp -o a_ngrams.o
-g++ -L/nethome/afischer/projects/character_ngram_LMs/lsvlm/lib -fPIC -llm -shared -Wl,-soname=lsvlm_c_bindings_chars.so.1 -o lsvlm_c_bindings_ngrams.so.1.0.1 a_ngrams.o # fac.o
