@@ -1,7 +1,7 @@
 #A class to abstract sentences. Actually, simply a list of lists of lists of words (list of sentences -> lists of phrases -> lists of words).
 from json import dumps, loads
 from meta import *
-from pipelines.experiment_config import *
+from pipelines.exp_config import *
 
 class Sentences(list):
     __metaclass__ = FormatMeta

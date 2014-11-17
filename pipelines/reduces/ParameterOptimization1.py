@@ -4,7 +4,7 @@ from json import dumps
 from pipelines.exp_config import SENTENCE_END
 
 from pipelines.formats.Sentences1 import *
-from pipelines.formats.LSVLM import LSVLM
+from pipelines.formats.LSVLM1 import LSVLM
 from data_manager.OSM import object_from_file
 from data_manager.dm_exceptions import *
 
@@ -14,7 +14,7 @@ from pipelines.formats.LengthModels import *
 from pipelines.formats.ConditionalContentSelection import *
 from pipelines.formats.PhraseAttachments import *
 from pipelines.formats.Sentences1 import *
-from pipelines.formats.LSVLM import *
+from pipelines.formats.LSVLM1 import *
 from pipelines.scripts.TER import *
 
 #Scripts for optimizing the parameters of LMs.

@@ -8,7 +8,7 @@ BNCSPLIT_NAME = "BNC"
 VOC_SIZE_NORMAL=47056
 VOC_SIZE_LOWER=41341
 #LM template directory
-TEMPLATE_DIR="/nethome/afischer/BA/lm_templates/"
+TEMPLATE_DIR="/projects/CaptionGeneration/templates/"
 #LSVLM C wrapper paths
 LSVLM_LIB_PATH="/projects/CaptionGeneration/lsvlm/lib/liblm.so"
 LSVLM_WRAPPER_PATH="/projects/CaptionGeneration/lsvlmc/lsvlm_c_bindings_ngrams.so.1.0.1"

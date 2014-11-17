@@ -1,5 +1,5 @@
-from pipelines.formats.Sentences import *
-from pipelines.formats.PhraseAttachments import *
+from pipelines.formats.Sentences1 import *
+from pipelines.formats.PhraseAttachments1 import *
 from json import dumps
 
 def extract_adjacent_phrases(sentences):
